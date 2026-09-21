@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animasi Interaktif - Pembuktian Teorema Pythagoras</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 20px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #5a67d8;
+            margin-bottom: 10px;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+        }
+
+        .explanation {
+            background: #f0f4ff;
+            border-left: 4px solid #5a67d8;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: clamp(0.85rem, 3vw, 1rem);
+            line-height: 1.6;
+        }
+
+        .explanation h3 {
+            color: #5a67d8;
+            margin-bottom: 10px;
+        }
+
+        .explanation ul {
+            margin-left: 20px;
+        }
+
+        .explanation li {
+            margin: 5px 0;
+        }
+
+        .animation-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #svgCanvas {
+            width: 100%;
+            height: auto;
+            max-height: 500px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-play {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-play:hover {
+            background: #38a169;
+        }
+
+        .btn-pause {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-pause:hover {
+            background: #dd6b20;
+        }
+
+        .btn-reset {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #e53e3e;
+        }
+
+        .btn-finish {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-finish:hover {
+            background: #3182ce;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .speed-control label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .speed-control input[type="range"] {
+            width: 150px;
+            height: 8px;
+            -webkit-appearance: none;
+            background: #e2e8f0;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .speed-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #5a67d8;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .progress-container {
+            background: #e2e8f0;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78, #4299e1);
+            width: 0%;
+            transition: width 0.1s;
+            border-radius: 6px;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .status-text {
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            button {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+
+            .animation-container {
+                padding: 10px;
+            }
+        }
+
+        /* SVG Styles */
+        .triangle {
+            fill: #cbd5e0;
+            stroke: #4a5568;
+            stroke-width: 2;
+        }
+
+        .square-a {
+            fill: #d946ef;
+            stroke: #a855f7;
+            stroke-width: 2;
+        }
+
+        .square-b {
+            fill: #4299e1;
+            stroke: #2b6cb0;
+            stroke-width: 2;
+        }
+
+        .square-c {
+            fill: none;
+            stroke: #5a67d8;
+            stroke-width: 3;
+            stroke-dasharray: 5,5;
+        }
+
+        .piece-yellow {
+            fill: #f6e05e;
+            stroke: #d69e2e;
+            stroke-width: 2;
+        }
+
+        .piece-green {
+            fill: #68d391;
+            stroke: #38a169;
+            stroke-width: 2;
+        }
+
+        .piece-blue {
+            fill: #63b3ed;
+            stroke: #3182ce;
+            stroke-width: 2;
+        }
+
+        .piece-red {
+            fill: #fc8181;
+            stroke: #e53e3e;
+            stroke-width: 2;
+        }
+
+        .label {
+            font-size: 14px;
+            font-weight: bold;
+            fill: #2d3748;
+        }
+
+        .label-white {
+            fill: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Animasi Interaktif</h1>
+        
+        <div class="explanation">
+            <h3> Pembuktian Teorema Pythagoras</h3>
+            <p><strong>Teorema Pythagoras:</strong> a² + b² = c²</p>
+            <p>Pada segitiga siku-siku dengan sisi:</p>
+            <ul>
+                <li>a = 3 → a² = <strong style="color: #d946ef">9</strong> (persegi magenta)</li>
+                <li>b = 4 → b² = <strong style="color: #4299e1">16</strong> (persegi biru, dipotong jadi 4 bagian)</li>
+                <li>c = 5 → c² = <strong style="color: #5a67d8">25</strong> (persegi outline biru)</li>
+            </ul>
+            <p><strong>Pembuktian:</strong> Keempat potongan dari b² (16) ditambah persegi a² (9) dapat disusun sempurna mengisi persegi c² (25). Ini membuktikan bahwa <strong>9 + 16 = 25</strong> atau <strong>a² + b² = c²</strong>.</p>
+        </div>
+
+        <div class="animation-container">
+            <svg id="svgCanvas" viewBox="0 0 600 500" preserveAspectRatio="xMidYMid meet">
+                <!-- Group untuk semua elemen -->
+                <g id="mainGroup">
+                    <!-- Persegi b=4 (akan dipotong) -->
+                    <rect id="squareB" x="60" y="180" width="160" height="160" class="square-b" opacity="0"/>
+                    <text id="labelB" x="140" y="270" text-anchor="middle" class="label" opacity="0">16<br/>b = 4</text>
+
+                    <!-- Persegi a=3 -->
+                    <rect id="squareA" x="220" y="340" width="120" height="120" class="square-a" opacity="0"/>
+                    <text id="labelA" x="280" y="410" text-anchor="middle" class="label-white" opacity="0">9</text>
+
+                    <!-- Segitiga siku-siku -->
+                    <polygon id="triangle" points="220,180 220,340 380,340" class="triangle" opacity="0"/>
+                    <text id="labelA_side" x="290" y="320" class="label" opacity="0">a = 3</text>
+                    <text id="labelB_side" x="190" y="270" class="label" opacity="0">b = 4</text>
+                    <text id="labelC_side" x="320" y="240" class="label" opacity="0">c = 5</text>
+
+                    <!-- Persegi c=5 (outline) -->
+                    <polygon id="squareC" points="220,180 380,340 220,500 60,340" class="square-c" opacity="0"/>
+                    <text id="labelC" x="220" y="350" text-anchor="middle" class="label" opacity="0">25</text>
+
+                    <!-- 4 Potongan dari persegi b=4 -->
+                    <!-- Potongan 1: Segitiga kuning -->
+                    <polygon id="piece1" points="60,180 140,180 60,260" class="piece-yellow" opacity="0" transform="translate(0,0)"/>
+                    
+                    <!-- Potongan 2: Segitiga hijau -->
+                    <polygon id="piece2" points="140,180 220,180 140,260" class="piece-green" opacity="0" transform="translate(0,0)"/>
+                    
+                    <!-- Potongan 3: Segitiga biru -->
+                    <polygon id="piece3" points="60,260 140,260 60,340" class="piece-blue" opacity="0" transform="translate(0,0)"/>
+                    
+                    <!-- Potongan 4: Segitiga merah -->
+                    <polygon id="piece4" points="140,260 220,260 140,340" class="piece-red" opacity="0" transform="translate(0,0)"/>
+
+                    <!-- Persegi magenta di dalam c² -->
+                    <rect id="innerSquare" x="140" y="260" width="120" height="120" class="square-a" opacity="0"/>
+                    <text id="innerLabel" x="200" y="330" text-anchor="middle" class="label-white" opacity="0">25</text>
+                </g>
+            </svg>
+        </div>
+
+        <div class="progress-container">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <div id="progressText" class="progress-text">Progres: 0%</div>
+        <div id="statusText" class="status-text">Siap memulai... tekan ▶ Mulai</div>
+
+        <div class="speed-control">
+            <label> Kecepatan:</label>
+            <input type="range" id="speedSlider" min="0.25" max="2" step="0.25" value="1">
+            <span id="speedValue">1×</span>
+        </div>
+
+        <div class="controls">
+            <button id="playBtn" class="btn-play">
+                <span>▶</span> Mulai
+            </button>
+            <button id="finishBtn" class="btn-finish">
+                <span></span> Selesai
+            </button>
+            <button id="resetBtn" class="btn-reset">
+                <span>↺</span> Reset
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // State variables
+        let isPlaying = false;
+        let isPaused = false;
+        let progress = 0;
+        let speed = 1;
+        let animationId = null;
+        let startTime = null;
+        let pausedAt = 0;
+
+        // DOM Elements
+        const playBtn = document.getElementById('playBtn');
+        const finishBtn = document.getElementById('finishBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const statusText = document.getElementById('statusText');
+
+        // SVG Elements
+        const elements = {
+            squareB: document.getElementById('squareB'),
+            labelB: document.getElementById('labelB'),
+            squareA: document.getElementById('squareA'),
+            labelA: document.getElementById('labelA'),
+            triangle: document.getElementById('triangle'),
+            labelA_side: document.getElementById('labelA_side'),
+            labelB_side: document.getElementById('labelB_side'),
+            labelC_side: document.getElementById('labelC_side'),
+            squareC: document.getElementById('squareC'),
+            labelC: document.getElementById('labelC'),
+            piece1: document.getElementById('piece1'),
+            piece2: document.getElementById('piece2'),
+            piece3: document.getElementById('piece3'),
+            piece4: document.getElementById('piece4'),
+            innerSquare: document.getElementById('innerSquare'),
+            innerLabel: document.getElementById('innerLabel')
+        };
+
+        // Animation phases
+        const phases = [
+            { end: 10, name: 'Muncul segitiga' },
+            { end: 25, name: 'Muncul persegi a² = 9' },
+            { end: 40, name: 'Muncul persegi b² = 16' },
+            { end: 55, name: 'Muncul persegi c² = 25' },
+            { end: 70, name: 'Memotong persegi b²' },
+            { end: 100, name: 'Menyusun ke dalam c²' }
+        ];
+
+        // Update speed
+        speedSlider.addEventListener('input', (e) => {
+            speed = parseFloat(e.target.value);
+            speedValue.textContent = speed + '×';
+        });
+
+        // Play/Pause button
+        playBtn.addEventListener('click', () => {
+            if (!isPlaying) {
+                startAnimation();
+            } else if (isPaused) {
+                resumeAnimation();
+            } else {
+                pauseAnimation();
+            }
+        });
+
+        // Finish button
+        finishBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                cancelAnimationFrame(animationId);
+            }
+            progress = 100;
+            updateAnimation(100);
+            isPlaying = false;
+            isPaused = false;
+            playBtn.innerHTML = '<span>▶</span> Ulangi';
+            playBtn.className = 'btn-play';
+            statusText.textContent = 'Animasi selesai! a² + b² = c² terbukti';
+        });
+
+        // Reset button
+        resetBtn.addEventListener('click', resetAnimation);
+
+        function startAnimation() {
+            isPlaying = true;
+            isPaused = false;
+            startTime = Date.now() - (pausedAt / speed);
+            playBtn.innerHTML = '<span></span> Pause';
+            playBtn.className = 'btn-pause';
+            statusText.textContent = 'Sedang berjalan...';
+            animate();
+        }
+
+        function pauseAnimation() {
+            isPaused = true;
+            pausedAt = progress;
+            cancelAnimationFrame(animationId);
+            playBtn.innerHTML = '<span>▶</span> Lanjut';
+            playBtn.className = 'btn-play';
+            statusText.textContent = 'Dijeda';
+        }
+
+        function resumeAnimation() {
+            isPaused = false;
+            startTime = Date.now();
+            playBtn.innerHTML = '<span>⏸</span> Pause';
+            playBtn.className = 'btn-pause';
+            statusText.textContent = 'Sedang berjalan...';
+            animate();
+        }
+
+        function resetAnimation() {
+            if (isPlaying) {
+                cancelAnimationFrame(animationId);
+            }
+            isPlaying = false;
+            isPaused = false;
+            progress = 0;
+            pausedAt = 0;
+            updateAnimation(0);
+            playBtn.innerHTML = '<span>▶</span> Mulai';
+            playBtn.className = 'btn-play';
+            statusText.textContent = 'Siap memulai... tekan ▶ Mulai';
+        }
+
+        function animate() {
+            if (!isPlaying || isPaused) return;
+
+            const elapsed = (Date.now() - startTime) * speed;
+            const duration = 10000; // 10 seconds total
+            progress = Math.min((elapsed / duration) * 100, 100);
+
+            updateAnimation(progress);
+
+            if (progress < 100) {
+                animationId = requestAnimationFrame(animate);
+            } else {
+                isPlaying = false;
+                playBtn.innerHTML = '<span>▶</span> Ulangi';
+                playBtn.className = 'btn-play';
+                statusText.textContent = 'Animasi selesai! a² + b² = c² terbukti';
+            }
+        }
+
+        function updateAnimation(prog) {
+            progressBar.style.width = prog + '%';
+            progressText.textContent = 'Progres: ' + Math.round(prog) + '%';
+
+            // Update elements based on progress
+            const opacity = Math.min(prog / 10, 1);
+            
+            // Phase 1: Show triangle (0-10%)
+            if (prog >= 10) {
+                elements.triangle.style.opacity = 1;
+                elements.labelA_side.style.opacity = 1;
+                elements.labelB_side.style.opacity = 1;
+                elements.labelC_side.style.opacity = 1;
+            }
+
+            // Phase 2: Show square a² (10-25%)
+            if (prog >= 25) {
+                elements.squareA.style.opacity = 1;
+                elements.labelA.style.opacity = 1;
+            }
+
+            // Phase 3: Show square b² (25-40%)
+            if (prog >= 40) {
+                elements.squareB.style.opacity = 1;
+                elements.labelB.style.opacity = 1;
+            }
+
+            // Phase 4: Show square c² (40-55%)
+            if (prog >= 55) {
+                elements.squareC.style.opacity = 1;
+                elements.labelC.style.opacity = 1;
+            }
+
+            // Phase 5: Cut square b² into pieces (55-70%)
+            if (prog >= 70) {
+                elements.squareB.style.opacity = 0;
+                elements.labelB.style.opacity = 0;
+                
+                const cutProgress = (prog - 55) / 15;
+                elements.piece1.style.opacity = cutProgress;
+                elements.piece2.style.opacity = cutProgress;
+                elements.piece3.style.opacity = cutProgress;
+                elements.piece4.style.opacity = cutProgress;
+            }
+
+            // Phase 6: Move pieces into c² (70-100%)
+            if (prog > 70) {
+                const moveProgress = (prog - 70) / 30;
+                
+                // Move piece 1 (yellow)
+                const p1x = 160 * moveProgress;
+                const p1y = 80 * moveProgress;
+                elements.piece1.setAttribute('transform', `translate(${p1x}, ${p1y})`);
+                
+                // Move piece 2 (green)
+                const p2x = 80 * moveProgress;
+                const p2y = 160 * moveProgress;
+                elements.piece2.setAttribute('transform', `translate(${p2x}, ${p2y})`);
+                
+                // Move piece 3 (blue)
+                const p3x = 240 * moveProgress;
+                const p3y = 80 * moveProgress;
+                elements.piece3.setAttribute('transform', `translate(${p3x}, ${p3y})`);
+                
+                // Move piece 4 (red)
+                const p4x = 160 * moveProgress;
+                const p4y = 160 * moveProgress;
+                elements.piece4.setAttribute('transform', `translate(${p4x}, ${p4y})`);
+
+                // Show inner square
+                if (moveProgress > 0.5) {
+                    elements.innerSquare.style.opacity = (moveProgress - 0.5) * 2;
+                    elements.innerLabel.style.opacity = (moveProgress - 0.5) * 2;
+                }
+            }
+
+            // Update current phase text
+            const currentPhase = phases.find(p => prog <= p.end);
+            if (currentPhase && prog < 100) {
+                statusText.textContent = currentPhase.name;
+            }
+        }
+
+        // Initialize
+        resetAnimation();
+    </script>
+</body>
+</html>
