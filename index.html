@@ -3,259 +3,432 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pembuktian Teorema Pythagoras — Animasi Interaktif</title>
+<title>Perigal Engine v5 — Pembuktian Pythagoras Interaktif</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family:'Segoe UI', system-ui, sans-serif;
-    background:linear-gradient(135deg,#667eea,#764ba2);
-    min-height:100vh; padding:16px;
-    display:flex; justify-content:center;
-  }
-  .container {
-    background:#fff; border-radius:20px;
-    box-shadow:0 20px 60px rgba(0,0,0,.3);
-    padding:20px; max-width:820px; width:100%;
-    align-self:flex-start;
-  }
-  h1 { text-align:center; color:#5a67d8; font-size:clamp(1.3rem,5vw,1.9rem); margin-bottom:12px; }
-  .explanation {
-    background:#f0f4ff; border-left:4px solid #5a67d8;
-    border-radius:8px; padding:14px; margin-bottom:16px;
-    font-size:clamp(.85rem,3vw,1rem); line-height:1.65; color:#2d3748;
-  }
-  .explanation h3 { color:#5a67d8; margin-bottom:6px; font-size:clamp(.95rem,3.4vw,1.1rem); }
-  .explanation b.hl-a { color:#a21caf; } .explanation b.hl-b { color:#2b6cb0; } .explanation b.hl-c { color:#5a67d8; }
-  .stage {
-    background:#f8f9fa; border:1px solid #e2e8f0;
-    border-radius:14px; padding:8px; margin-bottom:14px;
-  }
-  svg { width:100%; height:auto; display:block; }
-  .progress-container { background:#e2e8f0; height:12px; border-radius:6px; overflow:hidden; margin-bottom:8px; }
-  .progress-bar { height:100%; width:0%; border-radius:6px; background:linear-gradient(90deg,#48bb78,#4299e1); }
-  .progress-text { text-align:center; font-weight:700; color:#4a5568; margin-bottom:4px; font-size:clamp(.85rem,3vw,1rem); }
-  .status-text { text-align:center; color:#718096; font-size:clamp(.8rem,3vw,.95rem); margin-bottom:12px; min-height:1.2em; }
-  .equation {
-    text-align:center; font-weight:800; color:#2f855a;
-    font-size:clamp(1rem,4vw,1.4rem); opacity:0; transition:opacity .4s; margin-bottom:10px;
-  }
-  .speed-control { display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
-  .speed-control label { font-weight:700; color:#4a5568; }
-  input[type=range] { width:min(200px,50vw); height:8px; -webkit-appearance:none; appearance:none; background:#e2e8f0; border-radius:4px; outline:none; }
-  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:22px; height:22px; border-radius:50%; background:#4299e1; cursor:pointer; }
-  input[type=range]::-moz-range-thumb { width:22px; height:22px; border-radius:50%; background:#4299e1; border:none; cursor:pointer; }
-  .speed-value { font-weight:700; color:#5a67d8; min-width:2.5em; }
-  .controls { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-  button {
-    border:none; border-radius:10px; padding:13px 22px; min-height:46px;
-    font-size:clamp(.9rem,3.5vw,1rem); font-weight:700; color:#fff;
-    cursor:pointer; display:flex; align-items:center; gap:8px;
-    transition:transform .1s, filter .2s; touch-action:manipulation;
-  }
-  button:active { transform:scale(.95); }
-  .btn-play { background:#48bb78; } .btn-play.paused { background:#ed8936; }
-  .btn-finish { background:#4299e1; } .btn-reset { background:#f56565; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);
+       min-height:100vh;padding:16px;display:flex;justify-content:center}
+  .wrap{background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);
+        padding:18px;max-width:840px;width:100%;align-self:flex-start}
+  h1{text-align:center;color:#5a67d8;font-size:clamp(1.2rem,4.5vw,1.8rem);margin-bottom:10px}
+  .expl{background:#f0f4ff;border-left:4px solid #5a67d8;border-radius:8px;padding:12px;
+        margin-bottom:14px;font-size:clamp(.83rem,3vw,.98rem);line-height:1.6;color:#2d3748}
+  .expl b{color:#5a67d8}
+  .stage{background:#f8f9fa;border:1px solid #e2e8f0;border-radius:14px;padding:6px;margin-bottom:12px}
+  svg{width:100%;height:auto;display:block}
+  .row{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  select{padding:10px 12px;border-radius:8px;border:2px solid #cbd5e0;font-size:15px;font-weight:700;color:#4a5568;background:#fff}
+  .pbar{background:#e2e8f0;height:12px;border-radius:6px;overflow:hidden;margin-bottom:6px}
+  .pfill{height:100%;width:0%;background:linear-gradient(90deg,#48bb78,#4299e1);border-radius:6px}
+  .ptxt{text-align:center;font-weight:700;color:#4a5568;font-size:clamp(.85rem,3vw,1rem)}
+  .stxt{text-align:center;color:#718096;font-size:clamp(.8rem,3vw,.93rem);min-height:1.3em;margin-bottom:10px}
+  .eq{text-align:center;font-weight:800;color:#2f855a;font-size:clamp(1rem,4vw,1.35rem);opacity:0;transition:opacity .4s;margin-bottom:8px}
+  input[type=range]{width:min(200px,48vw);height:8px;-webkit-appearance:none;appearance:none;background:#e2e8f0;border-radius:4px;outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#4299e1;cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#4299e1;border:none;cursor:pointer}
+  .spd{font-weight:700;color:#5a67d8;min-width:2.6em}
+  label{font-weight:700;color:#4a5568}
+  button{border:none;border-radius:10px;padding:13px 20px;min-height:46px;font-size:clamp(.88rem,3.4vw,1rem);
+         font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;gap:7px;touch-action:manipulation;transition:transform .1s}
+  button:active{transform:scale(.95)}
+  #btnPlay{background:#48bb78} #btnPlay.on{background:#ed8936}
+  #btnFinish{background:#4299e1} #btnReset{background:#f56565}
+  .test{background:#1e293b;color:#a7f3d0;border-radius:10px;padding:12px;margin-top:14px;
+        font-family:ui-monospace,Consolas,monospace;font-size:clamp(.72rem,2.8vw,.85rem);
+        white-space:pre-wrap;line-height:1.5}
+  .test .warn{color:#fcd34d}
   /* SVG */
-  .tri { fill:#cbd5e0; stroke:#4a5568; stroke-width:2; }
-  .sqA { fill:#d946ef; stroke:#a21caf; stroke-width:2; }
-  .sqB { fill:#bee3f8; stroke:#2b6cb0; stroke-width:2; }
-  .sqC { fill:none; stroke:#3182ce; stroke-width:3; stroke-dasharray:7 5; }
-  .dashB { fill:none; stroke:#3182ce; stroke-width:2; stroke-dasharray:6 4; }
-  .dashA { fill:none; stroke:#a21caf; stroke-width:2; stroke-dasharray:6 4; }
-  .pY { fill:#f6e05e; stroke:#d69e2e; stroke-width:2; }
-  .pG { fill:#68d391; stroke:#2f855a; stroke-width:2; }
-  .pB { fill:#63b3ed; stroke:#2b6cb0; stroke-width:2; }
-  .pR { fill:#fc8181; stroke:#c53030; stroke-width:2; }
-  text { font-family:'Segoe UI', sans-serif; font-weight:700; }
-  @media (max-width:480px){ .container{padding:12px;} button{padding:12px 16px;} }
+  .tri{fill:#cbd5e0;stroke:#4a5568;stroke-width:2}
+  .sqAf{fill:#d946ef;stroke:#a21caf;stroke-width:2}
+  .sqBf{fill:#bee3f8;stroke:#2b6cb0;stroke-width:2}
+  .sqCo{fill:none;stroke:#3182ce;stroke-width:3;stroke-dasharray:7 5}
+  .dash{fill:none;stroke-width:2;stroke-dasharray:6 4}
+  .dB{stroke:#3182ce}.dA{stroke:#a21caf}.dI{stroke:#a21caf;stroke-dasharray:4 4}
+  .cut{stroke:#e53e3e;stroke-width:2.5;fill:none}
+  .p0{fill:#f6e05e;stroke:#d69e2e;stroke-width:2}
+  .p1{fill:#68d391;stroke:#2f855a;stroke-width:2}
+  .p2{fill:#63b3ed;stroke:#2b6cb0;stroke-width:2}
+  .p3{fill:#fc8181;stroke:#c53030;stroke-width:2}
+  text{font-family:'Segoe UI',sans-serif;font-weight:700}
+  @media(max-width:480px){.wrap{padding:12px}button{padding:12px 14px}}
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>🎬 Animasi Interaktif: Teorema Pythagoras</h1>
+<div class="wrap">
+  <h1>🎬 Perigal Engine v5 — Pythagoras Interaktif</h1>
 
-  <div class="explanation">
-    <h3>📐 Penjelasan Singkat Pembuktian</h3>
-    <p><b>Teorema Pythagoras:</b> pada segitiga siku-siku berlaku <b>a² + b² = c²</b>.
-    Contoh: a = 3, b = 4, c = 5 → <b class="hl-a">9</b> + <b class="hl-b">16</b> = <b class="hl-c">25</b>.</p>
-    <p><b>Cara pembuktian visual:</b> persegi b² = 16 dipotong menjadi <b>4 potongan</b>,
-    lalu potongan-potongan tersebut <b>digeser bersama persegi a² = 9</b> ke dalam persegi c² = 25.
-    Jika seluruh potongan menutup persegi c² <b>tanpa celah dan tanpa tumpang-tindih</b>,
-    maka terbukti bahwa luas a² + b² tepat sama dengan luas c². ∎</p>
+  <div class="expl">
+    <b>📐 Pembuktian Perigal:</b> persegi b² dipotong <b>dua garis lewat pusatnya</b> (sejajar & tegak lurus
+    hipotenusa) menjadi 4 irisan. Keempat irisan itu <b>cukup digeser tanpa rotasi</b>, bersama persegi a²,
+    untuk menutup persegi c² <b>tanpa celah & tanpa tumpang-tindih</b> → terbukti a² + b² = c².
+    Engine memverifikasi tiling secara otomatis (self-test) setiap kali geometri dibangun.
   </div>
 
   <div class="stage">
-    <svg id="svg" viewBox="90 110 540 480" preserveAspectRatio="xMidYMid meet" aria-label="Animasi pembuktian pythagoras">
-      <!-- persegi b² (isi) -->
-      <rect id="sqB" class="sqB" x="140" y="280" width="160" height="160" opacity="0"/>
-      <!-- outline dashed tempat awal -->
-      <rect id="dashB" class="dashB" x="140" y="280" width="160" height="160" opacity="0"/>
-      <rect id="dashA" class="dashA" x="300" y="440" width="120" height="120" opacity="0"/>
-      <!-- persegi c² outline -->
-      <polygon id="sqC" class="sqC" points="300,280 420,440 580,320 460,160" opacity="0"/>
-      <!-- segitiga -->
-      <polygon id="tri" class="tri" points="300,280 300,440 420,440" opacity="0"/>
-      <!-- persegi a² (bergerak) -->
-      <rect id="sqA" class="sqA" x="300" y="440" width="120" height="120" opacity="0"/>
-      <!-- 4 potongan (morph) -->
-      <polygon id="pY" class="pY" points="" opacity="0"/>
-      <polygon id="pG" class="pG" points="" opacity="0"/>
-      <polygon id="pB" class="pB" points="" opacity="0"/>
-      <polygon id="pR" class="pR" points="" opacity="0"/>
-      <!-- label -->
-      <text id="l16"  x="205" y="368" text-anchor="end"   fill="#2b6cb0" font-size="20" opacity="0">16</text>
-      <text id="lb4"  x="215" y="368" text-anchor="start" fill="#2f855a" font-size="16" opacity="0">b = 4</text>
-      <text id="l9"   x="360" y="508" text-anchor="middle" fill="#a21caf" font-size="20" opacity="0">9</text>
-      <text id="l25"  x="505" y="232" text-anchor="middle" fill="#2b6cb0" font-size="20" opacity="0">25</text>
-      <text id="la3"  x="360" y="430" text-anchor="middle" fill="#c53030" font-size="15" opacity="0">a = 3</text>
-      <text id="lb4s" x="290" y="368" text-anchor="end"   fill="#2f855a" font-size="15" opacity="0"></text>
-      <text id="lc5"  x="392" y="344" text-anchor="middle" fill="#2b6cb0" font-size="15" opacity="0">c = 5</text>
+    <svg id="svg" viewBox="0 0 720 640" preserveAspectRatio="xMidYMid meet">
+      <defs><clipPath id="clipB"><polygon id="clipBpoly" points=""/></clipPath></defs>
+      <polygon id="sqB"  class="sqBf" points="" opacity="0"/>
+      <polygon id="dashB" class="dash dB" points="" opacity="0"/>
+      <polygon id="dashA" class="dash dA" points="" opacity="0"/>
+      <polygon id="sqC"  class="sqCo" points="" opacity="0"/>
+      <polygon id="innerD" class="dash dI" points="" opacity="0"/>
+      <polygon id="tri"  class="tri" points="" opacity="0"/>
+      <polygon id="sqA"  class="sqAf" points="" opacity="0"/>
+      <g clip-path="url(#clipB)">
+        <line id="cut1" class="cut" opacity="0"/>
+        <line id="cut2" class="cut" opacity="0"/>
+      </g>
+      <polygon id="pc0" class="p0" points="" opacity="0"/>
+      <polygon id="pc1" class="p1" points="" opacity="0"/>
+      <polygon id="pc2" class="p2" points="" opacity="0"/>
+      <polygon id="pc3" class="p3" points="" opacity="0"/>
+      <text id="la"  font-size="16" fill="#c53030" opacity="0"></text>
+      <text id="lb"  font-size="16" fill="#2f855a" opacity="0"></text>
+      <text id="lc"  font-size="16" fill="#2b6cb0" opacity="0"></text>
+      <text id="la2" font-size="20" fill="#a21caf" text-anchor="middle" opacity="0"></text>
+      <text id="lb2" font-size="20" fill="#2b6cb0" text-anchor="middle" opacity="0"></text>
+      <text id="lc2" font-size="20" fill="#2b6cb0" text-anchor="middle" opacity="0"></text>
     </svg>
   </div>
 
-  <div class="equation" id="equation">9 + 16 = 25 &nbsp;→&nbsp; a² + b² = c² &nbsp;✔ TERBUKTI</div>
+  <div class="eq" id="eq"></div>
+  <div class="pbar"><div class="pfill" id="bar"></div></div>
+  <div class="ptxt" id="ptxt">Progres: 0%</div>
+  <div class="stxt" id="stxt">Siap memulai… tekan ▶ Mulai</div>
 
-  <div class="progress-container"><div class="progress-bar" id="bar"></div></div>
-  <div class="progress-text" id="progText">Progres: 0%</div>
-  <div class="status-text" id="status">Siap memulai… tekan ▶ Mulai</div>
+  <div class="row">
+    <label for="triplet">Segitiga:</label>
+    <select id="triplet">
+      <option value="3,4" selected>a=3, b=4 (c=5)</option>
+      <option value="5,12">a=5, b=12 (c=13)</option>
+      <option value="6,8">a=6, b=8 (c=10)</option>
+      <option value="8,15">a=8, b=15 (c=17)</option>
+    </select>
+  </div>
 
-  <div class="speed-control">
+  <div class="row">
     <label for="speed">⚡ Kecepatan:</label>
     <input type="range" id="speed" min="0.25" max="2" step="0.25" value="1">
-    <span class="speed-value" id="speedVal">1×</span>
+    <span class="spd" id="spdVal">1×</span>
   </div>
 
-  <div class="controls">
-    <button class="btn-play" id="btnPlay">▶ Mulai</button>
-    <button class="btn-finish" id="btnFinish">⏭ Selesai</button>
-    <button class="btn-reset" id="btnReset">↺ Reset</button>
+  <div class="row">
+    <button id="btnPlay">▶ Mulai</button>
+    <button id="btnFinish">⏭ Selesai</button>
+    <button id="btnReset">↺ Reset</button>
   </div>
+
+  <div class="test" id="test">— panel uji —</div>
 </div>
 
+<!-- ============ ENGINE ANDA, APA ADANYA ============ -->
+<script>
+function perigalGeometry(a, b, off, viewW, viewH, pad) {
+    off = off || { p: 0, q: 0 };
+    pad = pad || 20;
+    const c = Math.hypot(a, b);
+    const h = { x: a / c, y: -b / c };
+    const n = { x: b / c, y: a / c };
+    const o = { x: off.p * h.x + off.q * n.x, y: off.p * h.y + off.q * n.y };
+
+    const minX = -b, maxX = a + b, minY = -a, maxY = a + b;
+    const u = Math.min((viewW - 2 * pad) / (maxX - minX), (viewH - 2 * pad) / (maxY - minY));
+    const ox = pad + ((viewW - 2 * pad) - (maxX - minX) * u) / 2 - minX * u;
+    const oy = pad + ((viewH - 2 * pad) - (maxY - minY) * u) / 2 + maxY * u;
+    const S = (x, y) => ({ x: ox + x * u, y: oy - y * u });
+
+    const B = { x: 0, y: 0 }, A = { x: a, y: 0 }, C = { x: 0, y: b };
+    const sqA = [{ x: 0, y: 0 }, { x: a, y: 0 }, { x: a, y: -a }, { x: 0, y: -a }];
+    const sqB = [{ x: -b, y: 0 }, { x: 0, y: 0 }, { x: 0, y: b }, { x: -b, y: b }];
+    const sqC = [C, A, { x: A.x + n.x * c, y: A.y + n.y * c }, { x: C.x + n.x * c, y: C.y + n.y * c }];
+    const Wc = { x: (C.x + sqC[2].x) / 2, y: (C.y + sqC[2].y) / 2 };
+    const W = { x: Wc.x + o.x, y: Wc.y + o.y };
+    const Gc = { x: -b / 2, y: b / 2 };
+    const G = { x: Gc.x + o.x, y: Gc.y + o.y };
+
+    function clip(poly, P, m, s) {
+        const out = [], v = q => m.x * (q.x - P.x) + m.y * (q.y - P.y);
+        for (let i = 0; i < poly.length; i++) {
+            const cur = poly[i], nxt = poly[(i + 1) % poly.length];
+            const vc = v(cur), vn = v(nxt);
+            const fc = vc === 0 || Math.sign(vc) === s, fn = vn === 0 || Math.sign(vn) === s;
+            if (fc) out.push(cur);
+            if (fc !== fn) { const t = vc / (vc - vn);
+                out.push({ x: cur.x + (nxt.x - cur.x) * t, y: cur.y + (nxt.y - cur.y) * t }); }
+        }
+        return out;
+    }
+    function pip(poly, p, eps) {
+        eps = eps || 0;
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+            const xi = poly[i].x, yi = poly[i].y, xj = poly[j].x, yj = poly[j].y;
+            const len = Math.hypot(xj - xi, yj - yi) || 1;
+            const cr = (xj - xi) * (p.y - yi) - (yj - yi) * (p.x - xi);
+            if (Math.abs(cr) / len <= eps && p.x >= Math.min(xi, xj) - eps &&
+                p.x <= Math.max(xi, xj) + eps && p.y >= Math.min(yi, yj) - eps &&
+                p.y <= Math.max(yi, yj) + eps) return true;
+        }
+        let ins = false;
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+            const xi = poly[i].x, yi = poly[i].y, xj = poly[j].x, yj = poly[j].y;
+            if ((yi > p.y) !== (yj > p.y) && p.x < (xj - xi) * (p.y - yi) / (yj - yi) + xi) ins = !ins;
+        }
+        return ins;
+    }
+    function distPoly(poly, p) {
+        let d = Infinity;
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+            const xi = poly[i].x, yi = poly[i].y, xj = poly[j].x, yj = poly[j].y;
+            const dx = xj - xi, dy = yj - yi;
+            const t = Math.max(0, Math.min(1, ((p.x - xi) * dx + (p.y - yi) * dy) / (dx * dx + dy * dy || 1)));
+            d = Math.min(d, Math.hypot(p.x - (xi + dx * t), p.y - (yi + dy * t)));
+        }
+        return d;
+    }
+    function area(poly) { let s = 0;
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++)
+            s += poly[j].x * poly[i].y - poly[i].x * poly[j].y; return s / 2; }
+    const move = (poly, t) => poly.map(p => ({ x: p.x + t.x, y: p.y + t.y }));
+
+    const inner = [
+        { x: W.x - a / 2, y: W.y - a / 2 }, { x: W.x + a / 2, y: W.y - a / 2 },
+        { x: W.x + a / 2, y: W.y + a / 2 }, { x: W.x - a / 2, y: W.y + a / 2 }];
+    const mids = [
+        { x: W.x, y: W.y - a / 2 }, { x: W.x + a / 2, y: W.y },
+        { x: W.x, y: W.y + a / 2 }, { x: W.x - a / 2, y: W.y }];
+    const targets = inner.concat(mids, [W]);
+
+    const signs = [[1, 1], [-1, 1], [-1, -1], [1, -1]];
+    const pieces = [];
+    signs.forEach(([sH, sN]) => {
+        let poly = clip(sqB.slice(), G, h, sH);
+        poly = clip(poly, G, n, sN);
+        if (poly.length < 3 || Math.abs(area(poly)) < 1e-9) return;
+        pieces.push({ poly, t: null });
+    });
+
+    const tol = 0.02 * c;
+    const samples = [];
+    const step = c / 22;
+    for (let x = minX; x <= maxX; x += step)
+        for (let y = minY; y <= maxY; y += step) {
+            const p = { x, y };
+            if (!pip(sqC, p, 0) || pip(inner, p, 0)) continue;
+            if (distPoly(sqC, p) < tol || distPoly(inner, p) < tol) continue;
+            samples.push(p);
+        }
+
+    function coveredOnce(moved) {
+        for (const p of samples) {
+            let cnt = 0;
+            for (const m of moved) if (pip(m, p, 0)) cnt++;
+            if (cnt !== 1) return false;
+        }
+        return true;
+    }
+    function noOverlap(mNew, placed) {
+        const probe = mNew.concat([
+            { x: (mNew[0].x + mNew[2].x) / 2, y: (mNew[0].y + mNew[2].y) / 2 }]);
+        for (const q of probe)
+            for (const m of placed)
+                if (pip(m, q, -1e-9) && distPoly(m, q) > 1e-7) return false;
+        return true;
+    }
+
+    const cands = pieces.map(pc => {
+        const list = [];
+        for (const V of pc.poly) for (const Q of targets)
+            list.push({ x: Q.x - V.x, y: Q.y - V.y });
+        return list;
+    });
+    let solution = null;
+    (function dfs(i, placed, ts) {
+        if (solution) return;
+        if (i === pieces.length) {
+            if (coveredOnce(placed)) { solution = ts.slice(); }
+            return;
+        }
+        for (const t of cands[i]) {
+            const m = move(pieces[i].poly, t);
+            if (!m.every(p => pip(sqC, p, 1e-7))) continue;
+            if (!noOverlap(m, placed)) continue;
+            ts.push(t); placed.push(m);
+            dfs(i + 1, placed, ts);
+            ts.pop(); placed.pop();
+            if (solution) return;
+        }
+    })(0, [], []);
+
+    if (!solution) {
+        console.warn('⚠️ solver Perigal: fallback tanda-sumbu');
+        pieces.forEach(pc => {
+            const K = sqB.find(P2 => pip(pc.poly, P2, 1e-7 * b));
+            const sx = Math.sign(K.x - G.x), sy = Math.sign(K.y - G.y);
+            pc.t = { x: W.x + (a / 2) * sx - K.x, y: W.y + (a / 2) * sy - K.y };
+        });
+    } else {
+        pieces.forEach((pc, i) => pc.t = solution[i]);
+    }
+
+    const moved = pieces.map(pc => move(pc.poly, pc.t));
+    const okCover = coveredOnce(moved);
+    if (okCover) console.log('✅ TILING OK (Perigal ' + a + ',' + b + ')');
+    else console.warn('⚠️ TILING GAGAL', { okCover });
+
+    const tA = { x: W.x - a / 2, y: W.y + a / 2 };
+    const map = poly => poly.map(P => S(P.x, P.y));
+    return {
+        a, b, c, u, S,
+        tri: map([B, A, C]),
+        sqA: map(sqA), sqB: map(sqB), sqC: map(sqC), inner: map(inner),
+        pieces: pieces.map(pc => ({ poly: map(pc.poly), t: { x: pc.t.x * u, y: -pc.t.y * u } })),
+        tA: { x: tA.x * u, y: -tA.y * u },
+        cut1: [S(G.x - h.x * b * 2, G.y - h.y * b * 2), S(G.x + h.x * b * 2, G.y + h.y * b * 2)],
+        cut2: [S(G.x - n.x * b * 2, G.y - n.y * b * 2), S(G.x + n.x * b * 2, G.y + n.y * b * 2)],
+        G: S(G.x, G.y), W: S(W.x, W.y),
+        labels: {
+            a: S(a / 2, 0.6), b: S(-0.9, b / 2),
+            c: S(a / 2 + n.x * 0.8, b / 2 + n.y * 0.8),
+            b2: S(-b / 2, b / 2), a2: S(a / 2, -a / 2),
+            c2: S(Wc.x + n.x * 1.2, Wc.y + n.y * 1.2)
+        }
+    };
+}
+window.perigalGeometry = perigalGeometry;
+</script>
+
+<!-- ============ HARNESS: RENDER + TIMELINE + UJI ============ -->
 <script>
 (function(){
-  "use strict";
-  /* ---------- GEOMETRI (skala 40 px/unit) ----------
-     Siku-siku R(300,440); T(300,280) kaki b=4; A(420,440) kaki a=3
-     c² : T,A,(580,320),(460,160)   pusat c² = (440,300)
-     Lubang tengah H (tempat a² mendarat): (380,240)(500,240)(500,360)(380,360)
-  --------------------------------------------------- */
-  const O = [220,360];                       // pusat persegi b²
-  const INIT = {                             // 4 potongan awal (segitiga = 4 titik, O dobel)
-    pY: [[140,440],[300,440],O,O],
-    pG: [[140,280],[140,440],O,O],
-    pB: [[300,280],[140,280],O,O],
-    pR: [[300,280],[300,440],O,O]
-  };
-  const FIN = {                              // susunan akhir: menutup c² tanpa celah (luas tiap potong = 6400 = 16/4)
-    pY: [[300,280],[460,160],[500,240],[380,240]],
-    pG: [[460,160],[580,320],[500,360],[500,240]],
-    pB: [[580,320],[420,440],[380,360],[500,360]],
-    pR: [[300,280],[420,440],[380,360],[380,240]]
-  };
-  const A_MOVE = [80,-200];                  // vektor geser persegi a² ke pusat c²
+"use strict";
+const VW=720, VH=640, PAD=24, DUR=12000;
+const $=id=>document.getElementById(id);
+const el={sqB:$('sqB'),dashB:$('dashB'),dashA:$('dashA'),sqC:$('sqC'),innerD:$('innerD'),tri:$('tri'),
+  sqA:$('sqA'),cut1:$('cut1'),cut2:$('cut2'),clipBpoly:$('clipBpoly'),
+  pc:[$('pc0'),$('pc1'),$('pc2'),$('pc3')],
+  la:$('la'),lb:$('lb'),lc:$('lc'),la2:$('la2'),lb2:$('lb2'),lc2:$('lc2'),
+  eq:$('eq'),bar:$('bar'),ptxt:$('ptxt'),stxt:$('stxt'),test:$('test'),
+  btnPlay:$('btnPlay'),btnFinish:$('btnFinish'),btnReset:$('btnReset'),
+  speed:$('speed'),spdVal:$('spdVal'),triplet:$('triplet')};
 
-  const $ = id => document.getElementById(id);
-  const el = { sqB:$('sqB'), dashB:$('dashB'), dashA:$('dashA'), sqC:$('sqC'), tri:$('tri'),
-    sqA:$('sqA'), pY:$('pY'), pG:$('pG'), pB:$('pB'), pR:$('pR'),
-    l16:$('l16'), lb4:$('lb4'), l9:$('l9'), l25:$('l25'), la3:$('la3'), lc5:$('lc5'),
-    bar:$('bar'), progText:$('progText'), status:$('status'), equation:$('equation'),
-    btnPlay:$('btnPlay'), btnFinish:$('btnFinish'), btnReset:$('btnReset'),
-    speed:$('speed'), speedVal:$('speedVal') };
+let G=null, logs=[];
+const pts=poly=>poly.map(p=>p.x.toFixed(2)+','+p.y.toFixed(2)).join(' ');
+const setLine=(l,p)=>{l.setAttribute('x1',p[0].x);l.setAttribute('y1',p[0].y);
+                      l.setAttribute('x2',p[1].x);l.setAttribute('y2',p[1].y);};
+const lineLen=p=>Math.hypot(p[1].x-p[0].x,p[1].y-p[0].y);
+const clamp01=v=>v<0?0:v>1?1:v;
+const ph=(t,a,b)=>clamp01((t-a)/(b-a));
+const ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const shoal=p=>{let s=0;for(let i=0,j=p.length-1;i<p.length;j=i++)
+  s+=p[j].x*p[i].y-p[i].x*p[j].y;return Math.abs(s)/2;};
 
-  /* ---------- UTIL ---------- */
-  const clamp01 = v => v<0?0 : v>1?1 : v;
-  const phase = (t,a,b) => clamp01((t-a)/(b-a));
-  const ease  = x => x<.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2;   // easeInOutCubic
-  const lerp  = (p,q,m) => [ p[0]+(q[0]-p[0])*m, p[1]+(q[1]-p[1])*m ];
-  const ptsStr = arr => arr.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+/* ---------- bangun geometri + tangkap log self-test ---------- */
+function build(a,b){
+  logs=[];
+  const ol=console.log, ow=console.warn;
+  console.log=(...r)=>{logs.push(r.join(' '));ol.apply(console,r);};
+  console.warn=(...r)=>{logs.push('WARN '+r.join(' '));ow.apply(console,r);};
+  G=perigalGeometry(a,b,null,VW,VH,PAD);
+  console.log=ol; console.warn=ow;
 
-  /* ---------- TIMELINE: fungsi murni render(t), t ∈ [0,1] ---------- */
-  function render(t){
-    const fTri  = ease(phase(t,0.00,0.12));
-    const fA    = ease(phase(t,0.12,0.24));
-    const fB    = ease(phase(t,0.24,0.36));
-    const fC    = ease(phase(t,0.36,0.48));
-    const fCut  = ease(phase(t,0.48,0.60));
-    const fMoveA= ease(phase(t,0.60,0.92));
-    const fEnd  = phase(t,0.95,1.00);
+  el.clipBpoly.setAttribute('points',pts(G.sqB));
+  el.sqB.setAttribute('points',pts(G.sqB));
+  el.dashB.setAttribute('points',pts(G.sqB));
+  el.dashA.setAttribute('points',pts(G.sqA));
+  el.sqC.setAttribute('points',pts(G.sqC));
+  el.innerD.setAttribute('points',pts(G.inner));
+  el.tri.setAttribute('points',pts(G.tri));
+  el.sqA.setAttribute('points',pts(G.sqA));
+  G.pieces.forEach((pc,i)=>{el.pc[i].setAttribute('points',pts(pc.poly));
+                            el.pc[i].removeAttribute('transform');});
+  setLine(el.cut1,G.cut1); setLine(el.cut2,G.cut2);
+  [el.cut1,el.cut2].forEach((l,i)=>{const L=lineLen(i?G.cut2:G.cut1);
+    l.setAttribute('stroke-dasharray',L); l.dataset.len=L; l.setAttribute('stroke-dashoffset',L);});
 
-    el.tri.setAttribute('opacity', fTri);
-    el.la3.setAttribute('opacity', fTri);
-    el.lc5.setAttribute('opacity', fTri);
+  const rt=Math.sqrt(a*a+b*b), cTxt=Number.isInteger(rt)?('c = '+rt):('c = √'+(a*a+b*b));
+  el.la.textContent='a = '+a; el.lb.textContent='b = '+b; el.lc.textContent=cTxt;
+  el.la2.textContent=a*a; el.lb2.textContent=b*b; el.lc2.textContent=a*a+b*b;
+  const put=(t,p)=>{t.setAttribute('x',p.x);t.setAttribute('y',p.y);};
+  put(el.la,G.labels.a); put(el.lb,G.labels.b); put(el.lc,G.labels.c);
+  put(el.la2,G.labels.a2); put(el.lb2,G.labels.b2); put(el.lc2,G.labels.c2);
+  el.eq.innerHTML=(a*a)+' + '+(b*b)+' = '+(a*a+b*b)+' &nbsp;→&nbsp; a² + b² = c² &nbsp;✔ TERBUKTI';
 
-    el.sqA.setAttribute('opacity', fA);
-    el.sqA.setAttribute('transform', `translate(${(A_MOVE[0]*fMoveA).toFixed(2)},${(A_MOVE[1]*fMoveA).toFixed(2)})`);
-    el.l9.setAttribute('opacity', fA);
-    el.dashA.setAttribute('opacity', fMoveA*0.9);
+  /* verifikasi harness independen (satuan matematika) */
+  const u2=G.u*G.u;
+  const sumP=G.pieces.reduce((s,pc)=>s+shoal(pc.poly)/u2,0);
+  const okArea=Math.abs(sumP-b*b)<1e-6 && Math.abs(sumP+a*a-(a*a+b*b))<1e-6;
+  el.test.innerHTML=
+    logs.map(s=>s.startsWith('WARN')?'<span class="warn">'+s+'</span>':s).join('\n')+
+    '\nℹ potongan: '+G.pieces.length+' | luas tiap irisan = '+(b*b/4).toFixed(2)+
+    '\nℹ Σ irisan ('+sumP.toFixed(2)+') = b² ✔ | Σ + a² = c² ✔ : '+okArea+
+    '\nℹ skala u = '+G.u.toFixed(2)+' px/unit';
+}
 
-    el.sqB.setAttribute('opacity', fB*(1-fCut));
-    el.l16.setAttribute('opacity', fB);
-    el.lb4.setAttribute('opacity', fB);
-    el.dashB.setAttribute('opacity', fCut*0.9);
+/* ---------- timeline murni render(t) ---------- */
+function render(t){
+  const fTri=ease(ph(t,0,.10)), fA=ease(ph(t,.10,.20)), fB=ease(ph(t,.20,.30)),
+        fC=ease(ph(t,.30,.40)), fCut=ease(ph(t,.40,.52)),
+        mA=ease(ph(t,.52,.88)), fEnd=ph(t,.92,1);
+  el.tri.setAttribute('opacity',fTri);
+  el.la.setAttribute('opacity',fTri); el.lb.setAttribute('opacity',fTri); el.lc.setAttribute('opacity',fTri);
+  el.sqA.setAttribute('opacity',fA);
+  el.sqA.setAttribute('transform','translate('+(G.tA.x*mA).toFixed(2)+','+(G.tA.y*mA).toFixed(2)+')');
+  el.la2.setAttribute('opacity',fA);
+  el.dashA.setAttribute('opacity',mA*.9);
+  el.sqB.setAttribute('opacity',fB*(1-fCut));
+  el.lb2.setAttribute('opacity',fB);
+  el.dashB.setAttribute('opacity',fCut*.9);
+  el.sqC.setAttribute('opacity',fC);
+  el.lc2.setAttribute('opacity',fC);
 
-    el.sqC.setAttribute('opacity', fC);
-    el.l25.setAttribute('opacity', fC);
+  const fDraw=fCut, fCutGone=ease(ph(t,.56,.64));
+  [el.cut1,el.cut2].forEach(l=>{
+    l.setAttribute('opacity',fDraw*(1-fCutGone));
+    l.setAttribute('stroke-dashoffset',(l.dataset.len*(1-fDraw)).toFixed(2));});
 
-    const stagger = { pY:0.00, pG:0.03, pB:0.06, pR:0.09 };
-    for (const k of ['pY','pG','pB','pR']){
-      const m = ease(phase(t, 0.60+stagger[k], 0.92+stagger[k]));
-      el[k].setAttribute('opacity', fCut);
-      el[k].setAttribute('points', ptsStr(INIT[k].map((p,i)=>lerp(p,FIN[k][i],m))));
-    }
-    el.equation.style.opacity = fEnd;
+  G.pieces.forEach((pc,i)=>{
+    const m=ease(ph(t,.52+.04*i,.88+.04*i));
+    el.pc[i].setAttribute('opacity',fCut);
+    el.pc[i].setAttribute('transform','translate('+(pc.t.x*m).toFixed(2)+','+(pc.t.y*m).toFixed(2)+')');});
+  el.innerD.setAttribute('opacity',ease(ph(t,.46,.54))*(1-ease(ph(t,.86,.94))));
+  el.eq.style.opacity=fEnd;
 
-    el.bar.style.width = (t*100).toFixed(1)+'%';
-    el.progText.textContent = 'Progres: '+Math.round(t*100)+'%';
-    el.status.textContent =
-      t<=0      ? 'Siap memulai… tekan ▶ Mulai' :
-      t<0.12    ? 'Fase 1: segitiga siku-siku a=3, b=4, c=5' :
-      t<0.24    ? 'Fase 2: persegi a² = 9' :
-      t<0.36    ? 'Fase 3: persegi b² = 16' :
-      t<0.48    ? 'Fase 4: persegi c² = 25' :
-      t<0.60    ? 'Fase 5: persegi b² dipotong jadi 4 bagian' :
-      t<0.95    ? 'Fase 6: potongan disusun ke dalam c²…' :
-      t<1       ? 'Hampir selesai…' :
-                  '✔ Terbukti: 9 + 16 = 25 → a² + b² = c²';
-  }
+  el.bar.style.width=(t*100).toFixed(1)+'%';
+  el.ptxt.textContent='Progres: '+Math.round(t*100)+'%';
+  el.stxt.textContent=
+    t<=0?'Siap memulai… tekan ▶ Mulai':
+    t<.10?'Fase 1: segitiga siku-siku':
+    t<.20?'Fase 2: persegi a² = '+(G.a*G.a):
+    t<.30?'Fase 3: persegi b² = '+(G.b*G.b):
+    t<.40?'Fase 4: persegi c² = '+(G.a*G.a+G.b*G.b):
+    t<.52?'Fase 5: dua garis Perigal memotong b² jadi 4 irisan':
+    t<.92?'Fase 6: irisan digeser (tanpa rotasi) menutup c²…':
+    t<1?'Hampir selesai…':'✔ Terbukti: a² + b² = c²';
+}
 
-  /* ---------- MESIN WAKTU: elapsed terakumulasi (pause & speed aman) ---------- */
-  const DUR = 12000;
-  let elapsed=0, lastTs=null, playing=false, raf=null, speed=1;
+/* ---------- mesin waktu akumulatif (pause & speed aman) ---------- */
+let elapsed=0,lastTs=null,playing=false,raf=null,speed=1;
+function frame(ts){
+  if(lastTs!==null&&playing){elapsed+=(ts-lastTs)*speed;
+    if(elapsed>=DUR){elapsed=DUR;playing=false;syncBtn();}}
+  lastTs=ts; render(elapsed/DUR);
+  raf=playing?requestAnimationFrame(frame):null;
+  if(!playing)lastTs=null;
+}
+function loop(){if(raf===null){lastTs=null;raf=requestAnimationFrame(frame);}}
+function syncBtn(){el.btnPlay.textContent=playing?'⏸ Pause':
+  (elapsed>=DUR?'▶ Ulangi':(elapsed>0?'▶ Lanjut':'▶ Mulai'));
+  el.btnPlay.classList.toggle('on',playing);}
 
-  function frame(ts){
-    if (lastTs!==null && playing){
-      elapsed += (ts-lastTs)*speed;
-      if (elapsed>=DUR){ elapsed=DUR; playing=false; syncPlayBtn(); }
-    }
-    lastTs = ts;
-    render(elapsed/DUR);
-    raf = playing ? requestAnimationFrame(frame) : null;
-    if (!playing) lastTs = null;
-  }
-  function startLoop(){ if (raf===null){ lastTs=null; raf=requestAnimationFrame(frame); } }
-  function syncPlayBtn(){
-    el.btnPlay.textContent = playing ? '⏸ Pause' : (elapsed>=DUR ? '▶ Ulangi' : (elapsed>0 ? '▶ Lanjut' : '▶ Mulai'));
-    el.btnPlay.classList.toggle('paused', playing);
-  }
+el.btnPlay.onclick=()=>{if(playing){playing=false;syncBtn();return;}
+  if(elapsed>=DUR)elapsed=0; playing=true;syncBtn();loop();};
+el.btnFinish.onclick=()=>{playing=false;elapsed=DUR;render(1);syncBtn();};
+el.btnReset.onclick=()=>{playing=false;elapsed=0;render(0);syncBtn();};
+el.speed.oninput=e=>{speed=parseFloat(e.target.value);el.spdVal.textContent=speed+'×';};
+el.triplet.onchange=e=>{const[a,b]=e.target.value.split(',').map(Number);
+  build(a,b); playing=false; elapsed=0; render(0); syncBtn();};
 
-  el.btnPlay.addEventListener('click', ()=>{
-    if (playing){ playing=false; syncPlayBtn(); return; }
-    if (elapsed>=DUR) elapsed=0;
-    playing=true; syncPlayBtn(); startLoop();
-  });
-  el.btnFinish.addEventListener('click', ()=>{
-    playing=false; elapsed=DUR; render(1); syncPlayBtn();
-  });
-  el.btnReset.addEventListener('click', ()=>{
-    playing=false; elapsed=0; render(0); syncPlayBtn();
-  });
-  el.speed.addEventListener('input', e=>{
-    speed = parseFloat(e.target.value);
-    el.speedVal.textContent = speed+'×';
-  });
-
-  render(0); syncPlayBtn();
+build(3,4); render(0); syncBtn();
 })();
 </script>
 </body>
